@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/textFormat"
+        android:icon="@drawable/ic_baseline_text_format_24"
+        android:title="@string/textFormat"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/attachFile"
+        android:icon="@drawable/ic_baseline_attach_file_24"
+        android:title="@string/attachFile"
+        app:showAsAction="ifRoom" />
+</menu>

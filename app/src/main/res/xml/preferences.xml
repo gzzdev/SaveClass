@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.preference.PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:key="general"
+        app:title="@string/general">
+        <androidx.preference.Preference
+            app:icon="@drawable/ic_outline_book_24"
+            app:key="default_category"
+            app:title="@string/default_category"/>
+        <androidx.preference.SwitchPreferenceCompat
+            app:icon="@drawable/baseline_remove_red_eye_24"
+            app:key="show_pictures"
+            app:title="@string/show_pictures"/>
+        <androidx.preference.SwitchPreferenceCompat
+            app:icon="@drawable/baseline_calendar_month_24"
+            app:key="date_format"
+            app:title="@string/date_format"/>
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:key="security"
+        app:title="@string/security">
+        <androidx.preference.SwitchPreferenceCompat
+            app:icon="@drawable/baseline_lock_24"
+            app:key="enabled_password"
+            app:title="@string/password"/>
+        <androidx.preference.Preference
+            app:key="change_password"
+            app:title="@string/change_password"/>
+        <androidx.preference.SwitchPreferenceCompat
+            app:icon="@drawable/baseline_delete_24"
+            app:key="bin"
+            app:title="@string/bin"/>
+        <!--<androidx.preference.Preference
+            app:key="feedback"
+            app:summary="Report technical issues or suggest new features"
+            app:title="Send feedback"/>-->
+
+    </androidx.preference.PreferenceCategory>
+    <androidx.preference.PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:key="about"
+        app:title="@string/about">
+        <androidx.preference.Preference
+            app:iconSpaceReserved="false"
+            app:key="share_app"
+            app:title="@string/share_app"/>
+        <androidx.preference.Preference
+            app:key="version"
+            app:iconSpaceReserved="false"
+            app:title="@string/version"/>
+    </androidx.preference.PreferenceCategory>
+</androidx.preference.PreferenceScreen>

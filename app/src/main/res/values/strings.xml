@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">SaveClass</string>
+    <string name="categories">Categorías</string>
+    <string name="notes">Notas</string>
+    <string name="favorites">Favoritos</string>
+    <string name="settings">Preferencias</string>
+    <string name="new_note">Crear nota</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Categories -->
+    <string name="n_notes">%1$d notas</string>
+    <!-- Notes -->
+    <string name="archive">Archivar</string>
+    <string name="unarchive">Desarchivar</string>
+    <string name="pin">Anclar</string>
+    <string name="unpin">Desanclar</string>
+    <string name="remove">Borrar</string>
+    <string name="duplicate">Duplicar</string>
+    <!-- Note -->
+    <string name="writeNote">Escribe una nota...</string>
+    <string name="msg_note_saved">Nota guardada</string>
+    <string name="save">Guardar</string>
+    <string name="textFormat">Formato de texto</string>
+    <string name="attachFile">Adjuntar archivo</string>
+    <string name="noteTitle">Título</string>
+    <string name="newCategory">Nueva categoria</string>
+    <string name="note_head">%1$s | %2$d carácteres</string>
+    <string name="not_title">Sin título</string>
+    <string name="bin">Papelera</string>
+
+    <!--Preferences-->
+    <string name="general">General</string>
+    <string name="default_category">Categoría predeterminada</string>
+    <string name="show_pictures">Mostrar fotos</string>
+    <string name="date_format">Formato de fecha</string>
+    <string name="security">Seguridad</string>
+    <string name="password">Contraseña</string>
+    <string name="change_password">Cambiar contraseña</string>
+    <string name="about">Acerca de</string>
+    <string name="share_app">Compartir aplicación</string>
+    <string name="version">Versión 0.0</string>
+
+</resources>
