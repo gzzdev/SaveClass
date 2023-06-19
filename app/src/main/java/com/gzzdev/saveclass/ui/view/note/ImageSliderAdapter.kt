@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gzzdev.saveclass.databinding.ItemImageSliderBinding
 
-class ImageSliderAdapter() : ListAdapter<Uri, ImageSliderAdapter.ImageSliderVH>(Companion) {
+class ImageSliderAdapter(
+
+) : ListAdapter<Uri, ImageSliderAdapter.ImageSliderVH>(Companion) {
     companion object : DiffUtil.ItemCallback<Uri>() {
         override fun areItemsTheSame(
             oldItem: Uri,
@@ -34,7 +36,7 @@ class ImageSliderAdapter() : ListAdapter<Uri, ImageSliderAdapter.ImageSliderVH>(
         private val binding: ItemImageSliderBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(path: Uri) {
-            binding.ivImages.setImageURI(path)
+            binding.iv.setImageURI(path)
         }
     }
 }

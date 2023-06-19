@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat
 object Utils {
     private const val patternDefault = "dd-MM, hh:mm aa"
     val simpleDateFormat = SimpleDateFormat(patternDefault)
+    const val CAMERA_REQUEST_CODE = 0
     val PASTEL_COLOURS = arrayOf(
         arrayOf("#ff6961", "#77dd77", "#fdfd96", "#84b6f4", "#fdcae1"),
         arrayOf("#ffe4e1", "#d8f8e1", "#fcb7af", "#b0f2c2", "#b0c2f2"),

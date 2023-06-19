@@ -1,10 +1,12 @@
 package com.gzzdev.saveclass.ui.view.new_category_bottom_sheet
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.gzzdev.saveclass.data.model.RoomDataSource
 import com.gzzdev.saveclass.data.repository.CategoryRepository
 import com.gzzdev.saveclass.databinding.BottomSheetNewCategoryBinding
@@ -31,18 +33,28 @@ class NewCategoryBottomSheet : BottomSheetDialogFragment() {
             CategoryRepository(RoomDataSource(requireContext().app.room))
         ))
         binding.edtCategory.editText?.requestFocus()
-        binding.btnSaveCategory.setOnClickListener {
-            newCategoryVM.saveCategory(binding.edtCategory.editText!!.text.toString())
-        }
+        listeners()
         newCategoryVM.hide.observe(viewLifecycleOwner) { if (it) dismiss() }
-        /*val inputMethodManager =
-            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(
-            binding.edtCategory.editText!!,
-            0
-        )*/
     }
 
+    private fun listeners() {
+        binding.btnSaveCategory.setOnClickListener { saveCategory() }
+        binding.edtCategory.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                binding.btnSaveCategory.performClick()
+                return@OnKeyListener true
+            }
+            false
+        })
+    }
+
+    private fun saveCategory() {
+        val categoryName = binding.edtCategory.editText!!.text.toString().trim()
+        if (categoryName.isNotEmpty()) newCategoryVM.saveCategory(categoryName)
+        else Snackbar
+            .make(binding.root, "Sin nombre para la categoría", Snackbar.LENGTH_SHORT)
+            .show()
+    }
     companion object { const val TAG = "NewCategoryBottomSheet" }
 
 }

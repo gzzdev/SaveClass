@@ -5,5 +5,5 @@ import com.gzzdev.saveclass.data.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetNotes(private val repo: NoteRepository) {
-    operator fun invoke(): Flow<List<NoteWithCategory>> = repo.getNotes()
+    operator fun invoke(categoryId: Int): Flow<List<NoteWithCategory>> = repo.getNotes(categoryId)
 }

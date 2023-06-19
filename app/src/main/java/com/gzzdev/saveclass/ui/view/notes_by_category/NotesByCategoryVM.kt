@@ -1,31 +1,30 @@
-package com.gzzdev.saveclass.ui.view.notes
+package com.gzzdev.saveclass.ui.view.notes_by_category
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.gzzdev.saveclass.data.model.Note
 import com.gzzdev.saveclass.data.model.NoteWithCategory
 import com.gzzdev.saveclass.domain.GetNotes
-import com.gzzdev.saveclass.domain.RemoveNote
 import com.gzzdev.saveclass.domain.SaveNote
 import com.gzzdev.saveclass.domain.UpdateNote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.Date
 
-class NotesVM(
+class NotesByCategoryVM(
     getNotesUC: GetNotes,
     private val saveNoteUC: SaveNote,
     private val updateNoteUC: UpdateNote,
-    private val deleteNoteUC: RemoveNote
+    categoryId: Int
 ): ViewModel() {
 
-    val notes: LiveData<List<NoteWithCategory>> = getNotesUC(-1).asLiveData()
+    val notes: LiveData<List<NoteWithCategory>> = getNotesUC(categoryId).asLiveData()
 
     fun saveFastNote(title: String, text: String, imagePaths: ArrayList<String>) {
         val newNote = Note(1, title, text, Date(), Date(), imagePaths)
-        viewModelScope.launch(Dispatchers.IO) {
-            saveNoteUC(note = newNote)
-        }
+        viewModelScope.launch(Dispatchers.IO) { saveNoteUC(note = newNote) }
     }
 
     fun onFavoriteClick(note: Note) {
@@ -40,10 +39,6 @@ class NotesVM(
 
     fun updateNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) { updateNoteUC(note) }
-    }
-
-    fun removeNote(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) { removeNote(note) }
     }
 
 }

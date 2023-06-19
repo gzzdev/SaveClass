@@ -9,12 +9,12 @@
         android:id="@+id/categoriesFragment"
         android:name="com.gzzdev.saveclass.ui.view.categories.CategoriesFragment"
         android:label="fragment_categories"
-        tools:layout="@layout/fragment_categories" />
-    <fragment
-        android:id="@+id/favoritesFragment"
-        android:name="com.gzzdev.saveclass.ui.view.FavoritesFragment"
-        android:label="fragment_favorites"
-        tools:layout="@layout/fragment_favorites" />
+        tools:layout="@layout/fragment_categories" >
+        <action
+            android:id="@+id/action_categoriesFragment_to_notesByCategoryFragment"
+            app:destination="@id/notesByCategoryFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.gzzdev.saveclass.ui.view.settings.SettingsFragment"
@@ -30,4 +30,14 @@
         android:name="com.gzzdev.saveclass.ui.view.note.NoteFragment"
         android:label="fragment_note"
         tools:layout="@layout/fragment_note" />
+    <fragment
+        android:id="@+id/notesByCategoryFragment"
+        android:name="com.gzzdev.saveclass.ui.view.notes_by_category.NotesByCategoryFragment"
+        android:label="fragment_notes_by_category"
+        tools:layout="@layout/fragment_notes_by_category" >
+        <argument
+            android:name="category"
+            app:argType="com.gzzdev.saveclass.data.model.Category"
+            app:nullable="false" />
+    </fragment>
 </navigation>

@@ -16,6 +16,8 @@ interface LocalDataSource {
 
     suspend fun saveNote(note: Note): Long
     suspend fun updateNote(note: Note)
+    suspend fun deleteNote(note: Note)
     fun getNotes(): Flow<List<NoteWithCategory>>
+    fun getNotesByCategory(categoryId: Int): Flow<List<NoteWithCategory>>
     fun getTotalNotes(): Flow<Int>
 }

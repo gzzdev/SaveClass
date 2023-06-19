@@ -1,4 +1,4 @@
-package com.gzzdev.saveclass.ui.view.notes
+package com.gzzdev.saveclass.ui.common
 
 import android.view.LayoutInflater
 import android.view.View

@@ -15,7 +15,10 @@ class RoomDataSource(db: SaveClassDb): LocalDataSource {
         .getCategoriesTotalNotes()
 
     override fun getNotes(): Flow<List<NoteWithCategory>> = noteDao.getNotes()
+    override fun getNotesByCategory(categoryId: Int): Flow<List<NoteWithCategory>> = noteDao
+        .getNotesByCategory(categoryId)
     override suspend fun updateNote(note: Note) { noteDao.insert(note) }
+    override suspend fun deleteNote(note: Note) { noteDao.delete(note) }
     override suspend fun saveNote(note: Note): Long = noteDao.insert(note)
     override fun getTotalNotes(): Flow<Int> = noteDao.getTotalNotes()
 }

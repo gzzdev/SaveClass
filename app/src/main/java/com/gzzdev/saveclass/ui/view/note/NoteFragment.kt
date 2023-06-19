@@ -13,7 +13,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.result.PickVisualMediaRequest
@@ -22,8 +21,9 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayoutMediator
 import com.gzzdev.saveclass.R
 import com.gzzdev.saveclass.data.model.Category
 import com.gzzdev.saveclass.data.model.RoomDataSource
@@ -52,9 +52,9 @@ class NoteFragment : Fragment() {
             val imagesPaths = imageSliderAdapter.currentList.toMutableList()
             imagesPaths.add(it)
             if(imagesPaths.isEmpty()) {
-                binding.imgSlider.visibility = View.GONE
+                binding.rvImages.visibility = View.GONE
             } else {
-                binding.imgSlider.visibility = View.VISIBLE
+                binding.rvImages.visibility = View.VISIBLE
                 imageSliderAdapter.submitList(imagesPaths)
             }
         }
@@ -94,31 +94,34 @@ class NoteFragment : Fragment() {
     private fun setup() {
         binding.topAppBar.setNavigationOnClickListener {
             val title = binding.edtTitle.text.toString()
-            var imgInputStream: InputStream
-            var imgOutputStream: FileOutputStream
-            val baos = ByteArrayOutputStream()
-            var bitmap: Bitmap
-            var currentDate: Date
-            val internalPaths = arrayListOf<String>()
-            imageSliderAdapter.currentList.forEach {
-                try {
-                    currentDate = Date()
-                    imgInputStream = requireContext().contentResolver.openInputStream(it)!!
-                    bitmap = BitmapFactory.decodeStream(imgInputStream)
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                    imgOutputStream = requireContext().openFileOutput(
-                        currentDate.time.toString() + ".jpeg", Context.MODE_PRIVATE
-                    )
-                    imgOutputStream.write(baos.toByteArray())
-                    imgInputStream.close()
-                    imgOutputStream.close()
-                    baos.reset()
-                    internalPaths.add(currentDate.time.toString())
-                }catch (e: Exception){
-                    e.printStackTrace()
+            val note = binding.edtNote.text.toString()
+            if (imageSliderAdapter.currentList.isEmpty() && title.isEmpty() && note.isEmpty()) {
+                findNavController().popBackStack()
+            } else {
+                var imgInputStream: InputStream
+                var imgOutputStream: FileOutputStream
+                val baos = ByteArrayOutputStream()
+                var bitmap: Bitmap
+                var currentDate: Date
+                val internalPaths = arrayListOf<String>()
+                imageSliderAdapter.currentList.forEach {
+                    try {
+                        currentDate = Date()
+                        imgInputStream = requireContext().contentResolver.openInputStream(it)!!
+                        bitmap = BitmapFactory.decodeStream(imgInputStream)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                        imgOutputStream = requireContext().openFileOutput(
+                            currentDate.time.toString() + ".jpeg", Context.MODE_PRIVATE
+                        )
+                        imgOutputStream.write(baos.toByteArray())
+                        imgInputStream.close()
+                        imgOutputStream.close()
+                        baos.reset()
+                        internalPaths.add(currentDate.time.toString())
+                    }catch (e: Exception){ e.printStackTrace() }
                 }
+                noteVM.saveNote(title, note, internalPaths)
             }
-            noteVM.saveNote(title, binding.edtNote.text.toString(), internalPaths)
         }
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when(menuItem.itemId) {
@@ -136,8 +139,7 @@ class NoteFragment : Fragment() {
             }
         }
         imageSliderAdapter = ImageSliderAdapter()
-        binding.vpImages.adapter = imageSliderAdapter
-        TabLayoutMediator(binding.tbImages, binding.vpImages) { _, _ ->}.attach()
+        binding.rvImages.adapter = imageSliderAdapter
     }
 
     private fun observers() {
@@ -146,14 +148,6 @@ class NoteFragment : Fragment() {
                 android.R.layout.simple_list_item_1, categories
             )
         }
-        /*noteVM.imagesPaths.observe(viewLifecycleOwner) { imagesPaths ->
-            if(imagesPaths.isEmpty()) {
-                binding.imgSlider.visibility = View.GONE
-            } else {
-                binding.imgSlider.visibility = View.VISIBLE
-                imageSliderAdapter.submitList(imagesPaths)
-            }
-        }*/
         noteVM.hide.observe(viewLifecycleOwner) {
             if(it) {
                 Snackbar.make(
@@ -167,9 +161,14 @@ class NoteFragment : Fragment() {
     }
     private fun listeners() {
         var date: String
+        var words = 0
         binding.edtNote.doOnTextChanged { _, _, _, _ ->
             date = simpleDateFormat.format(Date())
-            binding.tvHeadNote.text = getString(R.string.note_head, date, binding.edtNote.text!!.length)
+            words = binding.edtNote.text!!.split("\\s+".toRegex()).size
+            binding.tvHeadNote.text = getString(
+                R.string.note_head, date,
+                words
+            )
         }
         binding.edtNote.setOnClickListener {
             binding.formatTextOptions.removeOnButtonCheckedListener(formatTextListener)
@@ -187,7 +186,7 @@ class NoteFragment : Fragment() {
             binding.formatTextOptions.addOnButtonCheckedListener(formatTextListener)
         }
         binding.formatTextOptions.addOnButtonCheckedListener(formatTextListener)
-        //binding.btnAddTag.setOnClickListener { binding.chTagGroup.addChip(binding.root.context, "apoko") }
+        binding.btnAddTag.setOnClickListener { binding.chTagGroup.addChip(binding.root.context, "apoko") }
         binding.btnCategory.setOnClickListener {
             val modalBottomSheet = NewCategoryBottomSheet()
             modalBottomSheet.show(requireActivity().supportFragmentManager, NewCategoryBottomSheet.TAG)
@@ -246,12 +245,12 @@ class NoteFragment : Fragment() {
             }
         }
     }
-    /*private fun ChipGroup.addChip(context: Context, label: String){
+    private fun ChipGroup.addChip(context: Context, label: String){
         Chip(context).apply {
             id = View.generateViewId()
             text = label
             isCloseIconVisible = true
             addView(this)
         }
-    }*/
+    }
 }

@@ -28,6 +28,7 @@
             app:key="enabled_password"
             app:title="@string/password"/>
         <androidx.preference.Preference
+            app:icon="@drawable/baseline_lock_reset_24"
             app:key="change_password"
             app:title="@string/change_password"/>
         <androidx.preference.SwitchPreferenceCompat

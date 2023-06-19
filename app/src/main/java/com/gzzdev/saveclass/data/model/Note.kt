@@ -20,6 +20,7 @@ data class Note(
     var isFavorite: Boolean = false,
     var isPin: Boolean = false,
     var isLock: Boolean = false,
+    var isArchive: Boolean = false,
     @PrimaryKey(autoGenerate = true)
     val idNote: Int = 0
 ): Serializable

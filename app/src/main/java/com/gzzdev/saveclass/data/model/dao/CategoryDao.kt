@@ -23,7 +23,7 @@ interface CategoryDao {
     @Query("SELECT COUNT(idCategory) FROM category")
     fun getTotalCategories(): Flow<Int>
 
-    @Query("SELECT category.*, COUNT(note.idNote) AS totalNotes FROM category LEFT JOIN note ON note.category=category.idCategory GROUP BY category.idCategory")
+    @Query("SELECT category.*, COUNT(note.idNote) AS totalNotes FROM category LEFT JOIN note ON note.category=category.idCategory WHERE category.idCategory>1 GROUP BY category.idCategory")
     fun getCategoriesTotalNotes(): Flow<List<CategoriesTotalNotes>>
     //SELECT Category.name, Count(Note.id) AS TotalNotes, Count(File.id) FROM Category left join Note on Note.categoryId=Category.id LEFT JOIN File on File.noteId=Note.id group by Category.id;
     //SELECT Category.name, Count(Note.id) AS Total FROM Category left join Note on Note.categoryId=Category.id group by Category.id;

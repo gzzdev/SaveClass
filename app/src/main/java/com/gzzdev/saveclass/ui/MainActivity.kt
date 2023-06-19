@@ -2,6 +2,7 @@ package com.gzzdev.saveclass.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -37,18 +38,19 @@ class MainActivity : AppCompatActivity() {
             when(destination.id){
                 R.id.noteFragment -> hideBottomNav()
                 R.id.settingsFragment -> hideBottomNav()
+                R.id.notesByCategoryFragment -> hideBottomNav()
                 else -> showBottomNav()
             }
         }
     }
 
     private fun showBottomNav(){
-        binding.bottomAppBar.performShow()
+        binding.bottomNavigationView.visibility = View.VISIBLE
         binding.fab.show()
     }
 
     private fun hideBottomNav(){
-        binding.bottomAppBar.performHide()
+        binding.bottomNavigationView.visibility = View.INVISIBLE
         binding.fab.hide()
     }
 }

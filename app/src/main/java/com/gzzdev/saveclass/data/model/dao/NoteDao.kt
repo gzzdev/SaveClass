@@ -14,9 +14,15 @@ interface NoteDao {
     @Update
     fun update(note: Note)
 
+    @Delete
+    fun delete(note: Note)
+
     @Transaction
     @Query("SELECT * FROM note")
     fun getNotes(): Flow<List<NoteWithCategory>>
+
+    @Query("SELECT * FROM note WHERE category=:categoryId")
+    fun getNotesByCategory(categoryId: Int): Flow<List<NoteWithCategory>>
 
     @Query("SELECT COUNT(idNote) FROM note")
     fun getTotalNotes(): Flow<Int>

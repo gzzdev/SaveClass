@@ -17,7 +17,6 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.gzzdev.saveclass.R
@@ -26,15 +25,16 @@ import com.gzzdev.saveclass.data.model.RoomDataSource
 import com.gzzdev.saveclass.data.repository.NoteRepository
 import com.gzzdev.saveclass.databinding.FragmentNotesBinding
 import com.gzzdev.saveclass.domain.GetNotes
+import com.gzzdev.saveclass.domain.RemoveNote
 import com.gzzdev.saveclass.domain.SaveNote
 import com.gzzdev.saveclass.domain.UpdateNote
+import com.gzzdev.saveclass.ui.common.Utils.CAMERA_REQUEST_CODE
 import com.gzzdev.saveclass.ui.common.app
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Date
 
 class NotesFragment : Fragment() {
-    private val CAMERA_REQUEST_CODE = 0
     private var _binding: FragmentNotesBinding? = null
     private val binding get() = _binding!!
     private lateinit var notesVM: NotesVM
@@ -48,12 +48,17 @@ class NotesFragment : Fragment() {
                 setImageURI(image)
             }
             binding.btnDeletePhoto.apply {
-                setOnClickListener {removePhoto()}
+                setOnClickListener { removePhoto() }
                 visibility = View.VISIBLE
             }
         }
     }
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentNotesBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -70,7 +75,8 @@ class NotesFragment : Fragment() {
         notesVM = NotesVM(
             GetNotes(noteRepository),
             SaveNote(noteRepository),
-            UpdateNote(noteRepository)
+            UpdateNote(noteRepository),
+            RemoveNote(noteRepository)
         )
         notesAdapter = NotesAdapter(notesVM::onFavoriteClick, notesVM::onPinClick, ::showMenuDialog)
         binding.rvNotes.adapter = notesAdapter
@@ -81,16 +87,27 @@ class NotesFragment : Fragment() {
         popupMenu.inflate(R.menu.menu_pop_note)
 
         popupMenu.menu.getItem(0).setIcon(
-            if(note.isPin) R.drawable.ic_baseline_push_pin_24
+            if (note.isPin) R.drawable.ic_baseline_push_pin_24
             else R.drawable.outline_push_pin_24
         )
 
         popupMenu.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.set_pin -> {
-                    notesVM.updateNote(note.copy(isPin = !note.isPin))
+                    notesVM.onPinClick(note)
                     true
                 }
+
+                R.id.set_archive -> {
+                    notesVM.updateNote(note.copy(isArchive = !note.isArchive))
+                    true
+                }
+
+                R.id.delete -> {
+                    removeNote(note)
+                    true
+                }
+
                 else -> {
                     true
                 }
@@ -100,11 +117,11 @@ class NotesFragment : Fragment() {
         try {
             val fMenuHelper = PopupMenu::class.java.getDeclaredField("mPopup")
             fMenuHelper.isAccessible = true
-            val menuHelper = fMenuHelper.get(popupMenu);
+            val menuHelper = fMenuHelper.get(popupMenu)
             menuHelper.javaClass.getDeclaredMethod(
                 "setForceShowIcon",
                 Boolean::class.javaPrimitiveType
-            ).invoke(menuHelper, true);
+            ).invoke(menuHelper, true)
         } catch (e: Exception) {
             Log.d("error", e.toString())
         } finally {
@@ -117,17 +134,15 @@ class NotesFragment : Fragment() {
     }
 
     private fun listeners() {
-
         binding.btnTakePhoto.setOnClickListener { checkCameraPermission() }
         binding.btnSaveNote.setOnClickListener {
             val textNote = binding.edtNewNote.text.toString()
             it.isEnabled = false
-            if(textNote.isNotEmpty()) {
-                var currentDate: Date
+            if (textNote.isNotEmpty()) {
+                val currentDate = Date()
                 val baos = ByteArrayOutputStream()
                 val internalPaths = arrayListOf<String>()
                 try {
-                    currentDate = Date()
                     val imgInputStream = requireContext().contentResolver.openInputStream(image!!)
                     val bitmap = BitmapFactory.decodeStream(imgInputStream)
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
@@ -139,11 +154,12 @@ class NotesFragment : Fragment() {
                     imgOutputStream.close()
                     baos.reset()
                     internalPaths.add(currentDate.time.toString())
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
                 notesVM.saveFastNote("", textNote, internalPaths)
-                Snackbar.make(binding.root, "Nota guardada exitosamente", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Nota guardada exitosamente", Snackbar.LENGTH_SHORT)
+                    .show()
                 binding.edtNewNote.setText("")
                 removePhoto()
                 it.isEnabled = true
@@ -152,6 +168,10 @@ class NotesFragment : Fragment() {
         }
     }
 
+    private fun removeNote(note: Note) {
+
+        notesVM.removeNote(note)
+    }
     private fun removePhoto() {
         binding.btnTakePhoto.isEnabled = true
         image = null
@@ -174,9 +194,11 @@ class NotesFragment : Fragment() {
         )
         takePicture.launch(image)
     }
+
     private fun checkCameraPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED
+        ) {
             requestCameraPermission()
         } else {
             takePhoto()
@@ -184,8 +206,11 @@ class NotesFragment : Fragment() {
     }
 
     private fun requestCameraPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
-                Manifest.permission.CAMERA)) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(),
+                Manifest.permission.CAMERA
+            )
+        ) {
             Snackbar.make(
                 binding.root,
                 "Se requiere de permiso para utilizar la cámara.",
@@ -193,11 +218,14 @@ class NotesFragment : Fragment() {
             ).show()
         } else {
             //El usuario nunca ha aceptado ni rechazado, así que le pedimos que acepte el permiso.
-            ActivityCompat.requestPermissions(requireActivity(),
+            ActivityCompat.requestPermissions(
+                requireActivity(),
                 arrayOf(Manifest.permission.CAMERA),
-                CAMERA_REQUEST_CODE)
+                CAMERA_REQUEST_CODE
+            )
         }
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>, grantResults: IntArray
@@ -205,7 +233,8 @@ class NotesFragment : Fragment() {
         when (requestCode) {
             CAMERA_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty()
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
                     takePhoto()
                 } else {
                     Snackbar.make(
@@ -216,6 +245,7 @@ class NotesFragment : Fragment() {
                 }
                 return
             }
+
             else -> {}
         }
     }
