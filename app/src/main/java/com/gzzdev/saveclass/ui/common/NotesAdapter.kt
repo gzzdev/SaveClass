@@ -1,5 +1,8 @@
 package com.gzzdev.saveclass.ui.common
 
+import android.content.Context
+import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +14,8 @@ import com.gzzdev.saveclass.data.model.Note
 import com.gzzdev.saveclass.data.model.NoteWithCategory
 import com.gzzdev.saveclass.databinding.ItemNoteBinding
 import com.gzzdev.saveclass.ui.common.Utils.simpleDateFormat
+import com.gzzdev.saveclass.ui.view.note.ImageSliderAdapter
+import java.io.File
 
 class NotesAdapter(
     private val onFavoriteClick: (Note) -> Unit,
@@ -39,36 +44,51 @@ class NotesAdapter(
     }
 
     inner class NoteVH(private val binding: ItemNoteBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(note: NoteWithCategory) {
-            binding.tvTitle.text = note.note.title.ifEmpty { binding.root.context.getString(R.string.not_title) }
-            /*if(note.note.imagesPaths.isNotEmpty()){
-                if(note.note.imagesPaths.size > 1) binding.imgMore.visibility = View.VISIBLE
-                binding.cvImg.visibility = View.VISIBLE
-                val outFile = binding.root.context.getFileStreamPath(note.note.imagesPaths.first() + ".jpeg")
-                binding.img.setImageURI(Uri.fromFile(outFile))
-            }*/
-            if (note.note.text.isNotEmpty()) {
+        fun bind(noteWithCategory: NoteWithCategory) {
+            val note = noteWithCategory.note
+            val category = noteWithCategory.category
+            binding.tvTitle.text = note.title.ifEmpty { binding.root.context.getString(R.string.not_title) }
+            if(note.imagesPaths.isNotEmpty()){
+                binding.rvImages.visibility = View.VISIBLE
+                val imagesAdapter = ImageSliderAdapter()
+                imagesAdapter.submitList(note.imagesPaths.map { imgName ->
+                    getFileUriFromPrivateFolder(binding.root.context, imgName)
+                })
+                binding.rvImages.adapter =imagesAdapter
+            } else {
+                binding.rvImages.visibility = View.GONE
+            }
+            if (note.text.isNotEmpty()) {
                 binding.tvText.visibility = View.VISIBLE
-                binding.tvText.text = note.note.text
+                binding.tvText.text = note.text
             }
-            binding.tvDate.text = simpleDateFormat.format(note.note.updated)
-
+            binding.tvDate.text = simpleDateFormat.format(note.updated)
             binding.btnFavorite.apply {
-                icon = if(note.note.isFavorite) binding.root.context.getDrawable(R.drawable.ic_baseline_star_24)
+                icon = if(note.isFavorite)
+                    binding.root.context.getDrawable(R.drawable.ic_baseline_star_24)
                 else binding.root.context.getDrawable(R.drawable.ic_outline_star_outline_24)
-                setOnClickListener { onFavoriteClick(note.note) }
+                setOnClickListener { onFavoriteClick(note) }
             }
 
-            if (note.note.isPin) {
+            if (note.isPin) {
                 binding.btnPin.visibility = View.VISIBLE
                 binding.btnPin.setOnClickListener {
                     it.visibility = View.GONE
-                    onPinClick(note.note)
+                    onPinClick(note)
                 }
             } else binding.btnPin.visibility = View.GONE
             binding.root.setOnLongClickListener {
-                showMenuDialog(it, note.note)
+                showMenuDialog(it, note)
                 true
+            }
+        }
+        private fun getFileUriFromPrivateFolder(context: Context, fileName: String, folderName: String = "notes"): Uri? {
+            val privateFolder = File(context.getExternalFilesDir(null), folderName)
+            val file = File(privateFolder, fileName)
+            return if (file.exists()) {
+                Uri.fromFile(file)
+            } else {
+                null
             }
         }
     }

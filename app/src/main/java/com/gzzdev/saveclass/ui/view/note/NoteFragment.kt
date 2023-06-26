@@ -36,7 +36,9 @@ import com.gzzdev.saveclass.ui.common.Utils.simpleDateFormat
 import com.gzzdev.saveclass.ui.common.app
 import com.gzzdev.saveclass.ui.view.new_category_bottom_sheet.NewCategoryBottomSheet
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
@@ -98,27 +100,35 @@ class NoteFragment : Fragment() {
             if (imageSliderAdapter.currentList.isEmpty() && title.isEmpty() && note.isEmpty()) {
                 findNavController().popBackStack()
             } else {
-                var imgInputStream: InputStream
+                var imgInputStream: InputStream?
                 var imgOutputStream: FileOutputStream
-                val baos = ByteArrayOutputStream()
                 var bitmap: Bitmap
                 var currentDate: Date
                 val internalPaths = arrayListOf<String>()
+                //Carpeta privada destino
+                val destinationFolder = File(requireContext().getExternalFilesDir(null),"notes")
+                if (!destinationFolder.exists()) destinationFolder.mkdirs()
                 imageSliderAdapter.currentList.forEach {
+                    currentDate = Date()
+                    val fileName = "${currentDate.time}.jpg"
+                    //Archivo destino
+                    val destinationFile = File(destinationFolder, fileName)
                     try {
-                        currentDate = Date()
-                        imgInputStream = requireContext().contentResolver.openInputStream(it)!!
+                        //Abre stream de entrada desde la URI
+                        imgInputStream = requireContext().contentResolver.openInputStream(it)
+                        //Decodifica el stream de entrada en un Bitmap
                         bitmap = BitmapFactory.decodeStream(imgInputStream)
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                        imgOutputStream = requireContext().openFileOutput(
-                            currentDate.time.toString() + ".jpeg", Context.MODE_PRIVATE
-                        )
-                        imgOutputStream.write(baos.toByteArray())
-                        imgInputStream.close()
+                        //Crea un stream de salida hacia el archivo de destino
+                        imgOutputStream = FileOutputStream(destinationFile)
+                        //Comprime el bitmap en formato JPEG y escribe el stream de salida
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, imgOutputStream)
+                        //Cierra los stream
                         imgOutputStream.close()
-                        baos.reset()
-                        internalPaths.add(currentDate.time.toString())
-                    }catch (e: Exception){ e.printStackTrace() }
+                        imgInputStream?.close()
+                        internalPaths.add(fileName)
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
                 }
                 noteVM.saveNote(title, note, internalPaths)
             }

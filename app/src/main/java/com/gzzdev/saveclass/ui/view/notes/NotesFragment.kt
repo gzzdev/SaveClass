@@ -30,8 +30,10 @@ import com.gzzdev.saveclass.domain.SaveNote
 import com.gzzdev.saveclass.domain.UpdateNote
 import com.gzzdev.saveclass.ui.common.Utils.CAMERA_REQUEST_CODE
 import com.gzzdev.saveclass.ui.common.app
+import com.gzzdev.saveclass.ui.common.NotesAdapter
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.util.Date
 
 class NotesFragment : Fragment() {
@@ -139,23 +141,33 @@ class NotesFragment : Fragment() {
             val textNote = binding.edtNewNote.text.toString()
             it.isEnabled = false
             if (textNote.isNotEmpty()) {
-                val currentDate = Date()
-                val baos = ByteArrayOutputStream()
                 val internalPaths = arrayListOf<String>()
-                try {
-                    val imgInputStream = requireContext().contentResolver.openInputStream(image!!)
-                    val bitmap = BitmapFactory.decodeStream(imgInputStream)
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                    val imgOutputStream = requireContext().openFileOutput(
-                        currentDate.time.toString() + ".jpeg", Context.MODE_PRIVATE
+                image?.let { uri ->
+                    val currentDate = Date()
+                    //Carpeta privada destino
+                    val destinationFolder = File(
+                        requireContext().getExternalFilesDir(null),"notes"
                     )
-                    imgOutputStream.write(baos.toByteArray())
-                    imgInputStream?.close()
-                    imgOutputStream.close()
-                    baos.reset()
-                    internalPaths.add(currentDate.time.toString())
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                    if (!destinationFolder.exists()) destinationFolder.mkdirs()
+                    try {
+                        val fileName = "${currentDate.time}.jpg"
+                        //Archivo destino
+                        val destinationFile = File(destinationFolder, fileName)
+                        //Abre stream de entrada desde la URI
+                        val imgInputStream = requireContext().contentResolver.openInputStream(uri)
+                        //Decodifica el stream de entrada en un Bitmap
+                        val bitmap = BitmapFactory.decodeStream(imgInputStream)
+                        //Crea un stream de salida hacia el archivo de destino
+                        val imgOutputStream = FileOutputStream(destinationFile)
+                        //Comprime el bitmap en formato JPEG y escribe el stream de salida
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, imgOutputStream)
+                        //Cierra los stream
+                        imgOutputStream.close()
+                        imgInputStream?.close()
+                        internalPaths.add(fileName)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
                 notesVM.saveFastNote("", textNote, internalPaths)
                 Snackbar.make(binding.root, "Nota guardada exitosamente", Snackbar.LENGTH_SHORT)
@@ -167,10 +179,10 @@ class NotesFragment : Fragment() {
 
         }
     }
-
     private fun removeNote(note: Note) {
-
-        notesVM.removeNote(note)
+        val privateFolder = File(requireContext().getExternalFilesDir(null), "notes")
+        note.imagesPaths.forEach { File(privateFolder, it).delete() }
+        //notesVM.removeNote(note)
     }
     private fun removePhoto() {
         binding.btnTakePhoto.isEnabled = true
