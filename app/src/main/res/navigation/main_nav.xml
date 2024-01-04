@@ -24,7 +24,11 @@
         android:id="@+id/notesFragment"
         android:name="com.gzzdev.saveclass.ui.view.notes.NotesFragment"
         android:label="fragment_notes"
-        tools:layout="@layout/fragment_notes" />
+        tools:layout="@layout/fragment_notes" >
+        <action
+            android:id="@+id/action_notesFragment_to_noteFragment"
+            app:destination="@id/noteFragment" />
+    </fragment>
     <fragment
         android:id="@+id/noteFragment"
         android:name="com.gzzdev.saveclass.ui.view.note.NoteFragment"

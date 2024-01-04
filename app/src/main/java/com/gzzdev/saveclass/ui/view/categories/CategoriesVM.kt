@@ -3,8 +3,8 @@ package com.gzzdev.saveclass.ui.view.categories
 import androidx.lifecycle.*
 import com.gzzdev.saveclass.data.model.CategoriesTotalNotes
 import com.gzzdev.saveclass.data.model.Category
-import com.gzzdev.saveclass.domain.GetCategoriesTotalNotes
-import com.gzzdev.saveclass.domain.RemoveCategory
+import com.gzzdev.saveclass.domain.categories.GetCategoriesTotalNotes
+import com.gzzdev.saveclass.domain.categories.RemoveCategory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

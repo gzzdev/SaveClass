@@ -1,16 +1,41 @@
 package com.gzzdev.saveclass.ui.common
 
+import android.graphics.Color
+import androidx.core.graphics.ColorUtils
 import java.text.SimpleDateFormat
 
 object Utils {
     private const val patternDefault = "dd-MM, hh:mm aa"
     val simpleDateFormat = SimpleDateFormat(patternDefault)
-    const val CAMERA_REQUEST_CODE = 0
-    val PASTEL_COLOURS = arrayOf(
-        arrayOf("#ff6961", "#77dd77", "#fdfd96", "#84b6f4", "#fdcae1"),
-        arrayOf("#ffe4e1", "#d8f8e1", "#fcb7af", "#b0f2c2", "#b0c2f2"),
-        arrayOf("#fabfb7", "#fdf9c4", "#ffda9e", "#c5c6c8", "#b2e2f2"),
-        arrayOf("#cce5ff", "#a3ffac", "#ffca99", "#eaffc2", "#ff8097"),
-        arrayOf("#ff85d5", "#e79eff", "#b8e4ff", "#ff94a2", "#ffe180")
+    val PASTEL_COLOURS = listOf(
+        listOf(
+            Color.parseColor("#ff6961"), Color.parseColor("#77dd77"),
+            Color.parseColor("#fdfd96"), Color.parseColor("#84b6f4"),
+            Color.parseColor("#fdcae1")
+        ),
+        listOf(
+            Color.parseColor("#ffe4e1"), Color.parseColor("#d8f8e1"),
+            Color.parseColor("#fcb7af"), Color.parseColor("#b0f2c2"),
+            Color.parseColor("#b0c2f2")
+        ),
+        listOf(
+            Color.parseColor("#fabfb7"), Color.parseColor("#fdf9c4"),
+            Color.parseColor("#ffda9e"), Color.parseColor("#c5c6c8"),
+            Color.parseColor("#b2e2f2")
+        ),
+        listOf(
+            Color.parseColor("#cce5ff"),
+            Color.parseColor("#a3ffac"),
+            Color.parseColor("#ffca99"),
+            Color.parseColor("#eaffc2"),
+            Color.parseColor("#ff8097")
+        ),
+        listOf(
+            Color.parseColor("#ff85d5"),
+            Color.parseColor("#e79eff"),
+            Color.parseColor("#b8e4ff"),
+            Color.parseColor("#ff94a2"),
+            Color.parseColor("#ffe180")
+        )
     )
 }

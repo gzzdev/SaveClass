@@ -1,67 +1,51 @@
 package com.gzzdev.saveclass.ui.view.notes
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts.TakePicture
-import androidx.appcompat.widget.PopupMenu
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import com.google.android.material.snackbar.Snackbar
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.chip.Chip
 import com.gzzdev.saveclass.R
 import com.gzzdev.saveclass.data.model.Note
 import com.gzzdev.saveclass.data.model.RoomDataSource
 import com.gzzdev.saveclass.data.repository.NoteRepository
 import com.gzzdev.saveclass.databinding.FragmentNotesBinding
-import com.gzzdev.saveclass.domain.GetNotes
-import com.gzzdev.saveclass.domain.RemoveNote
-import com.gzzdev.saveclass.domain.SaveNote
-import com.gzzdev.saveclass.domain.UpdateNote
-import com.gzzdev.saveclass.ui.common.Utils.CAMERA_REQUEST_CODE
-import com.gzzdev.saveclass.ui.common.app
+import com.gzzdev.saveclass.domain.notes.GetNotes
+import com.gzzdev.saveclass.domain.notes.RemoveNote
+import com.gzzdev.saveclass.domain.notes.SaveNote
+import com.gzzdev.saveclass.domain.notes.UpdateNote
+import com.gzzdev.saveclass.ui.common.MultimediaManagerObserver
 import com.gzzdev.saveclass.ui.common.NotesAdapter
-import java.io.ByteArrayOutputStream
+import com.gzzdev.saveclass.ui.common.app
+import com.gzzdev.saveclass.ui.common.fileName
+import com.gzzdev.saveclass.ui.common.hideKeyboard
+import com.gzzdev.saveclass.ui.common.showMessage
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Date
 
 class NotesFragment : Fragment() {
     private var _binding: FragmentNotesBinding? = null
     private val binding get() = _binding!!
+    lateinit var multimediaObserver: MultimediaManagerObserver
     private lateinit var notesVM: NotesVM
     private lateinit var notesAdapter: NotesAdapter
-    private var image: Uri? = null
-    private val takePicture = registerForActivityResult(TakePicture()) { isSaved ->
-        if (isSaved) {
-            binding.btnTakePhoto.isEnabled = false
-            binding.ivPhoto.apply {
-                visibility = View.VISIBLE
-                setImageURI(image)
-            }
-            binding.btnDeletePhoto.apply {
-                setOnClickListener { removePhoto() }
-                visibility = View.VISIBLE
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentNotesBinding.inflate(inflater, container, false)
+        multimediaObserver = MultimediaManagerObserver(
+            binding.btnAddNote,
+            requireContext()
+        ) { uri -> notesVM.addAttachment(uri) }
+        lifecycle.addObserver(multimediaObserver)
         return binding.root
     }
 
@@ -80,80 +64,51 @@ class NotesFragment : Fragment() {
             UpdateNote(noteRepository),
             RemoveNote(noteRepository)
         )
-        notesAdapter = NotesAdapter(notesVM::onFavoriteClick, notesVM::onPinClick, ::showMenuDialog)
+        notesAdapter = NotesAdapter(notesVM::onUnpinClick, ::showNoteOptions)
         binding.rvNotes.adapter = notesAdapter
     }
 
-    private fun showMenuDialog(viewNote: View, note: Note) {
-        val popupMenu = PopupMenu(requireContext(), viewNote)
-        popupMenu.inflate(R.menu.menu_pop_note)
-
-        popupMenu.menu.getItem(0).setIcon(
-            if (note.isPin) R.drawable.ic_baseline_push_pin_24
-            else R.drawable.outline_push_pin_24
+    private fun showNoteOptions(note: Note) {
+        val modalBottomSheet = NoteOptionsBottomSheet(note)
+        modalBottomSheet.show(
+            requireActivity().supportFragmentManager,
+            NoteOptionsBottomSheet.TAG
         )
-
-        popupMenu.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.set_pin -> {
-                    notesVM.onPinClick(note)
-                    true
-                }
-
-                R.id.set_archive -> {
-                    notesVM.updateNote(note.copy(isArchive = !note.isArchive))
-                    true
-                }
-
-                R.id.delete -> {
-                    removeNote(note)
-                    true
-                }
-
-                else -> {
-                    true
-                }
-            }
-        }
-
-        try {
-            val fMenuHelper = PopupMenu::class.java.getDeclaredField("mPopup")
-            fMenuHelper.isAccessible = true
-            val menuHelper = fMenuHelper.get(popupMenu)
-            menuHelper.javaClass.getDeclaredMethod(
-                "setForceShowIcon",
-                Boolean::class.javaPrimitiveType
-            ).invoke(menuHelper, true)
-        } catch (e: Exception) {
-            Log.d("error", e.toString())
-        } finally {
-            popupMenu.show()
-        }
     }
 
     private fun observers() {
         notesVM.notes.observe(viewLifecycleOwner) { notesAdapter.submitList(it) }
+        notesVM.attachments.observe(viewLifecycleOwner) { attachment ->
+            binding.cgAttachments.removeAllViews()
+            attachment.forEach { binding.cgAttachments.addView(createAttachmentChip(it)) }
+        }
     }
 
     private fun listeners() {
-        binding.btnTakePhoto.setOnClickListener { checkCameraPermission() }
+        binding.btnTakePhoto.setOnClickListener { multimediaObserver.takePhoto() }
         binding.btnSaveNote.setOnClickListener {
-            val textNote = binding.edtNewNote.text.toString()
             it.isEnabled = false
-            if (textNote.isNotEmpty()) {
-                val internalPaths = arrayListOf<String>()
-                image?.let { uri ->
-                    val currentDate = Date()
-                    //Carpeta privada destino
-                    val destinationFolder = File(
-                        requireContext().getExternalFilesDir(null),"notes"
-                    )
-                    if (!destinationFolder.exists()) destinationFolder.mkdirs()
+            saveFastNote()
+            it.isEnabled = true
+        }
+        binding.btnAddNote.setOnClickListener {
+            findNavController().navigate(
+                NotesFragmentDirections.actionNotesFragmentToNoteFragment()
+            )
+        }
+    }
+
+    private fun saveFastNote() {
+        val textNote = binding.edtNewNote.text.toString()
+        if (textNote.isNotEmpty()) {
+            //Carpeta privada destino
+            requireActivity().hideKeyboard()
+            val destinationFolder = requireContext().getExternalFilesDir("notes")
+            destinationFolder?.let {
+                if (!destinationFolder.exists()) destinationFolder.mkdirs()
+                notesVM.attachments.value!!.forEach { uri ->
                     try {
-                        val fileName = "${currentDate.time}.jpg"
-                        //Archivo destino
-                        val destinationFile = File(destinationFolder, fileName)
-                        //Abre stream de entrada desde la URI
+                        val destinationFile = File(destinationFolder, "${uri.fileName()}.jpg")
                         val imgInputStream = requireContext().contentResolver.openInputStream(uri)
                         //Decodifica el stream de entrada en un Bitmap
                         val bitmap = BitmapFactory.decodeStream(imgInputStream)
@@ -161,104 +116,37 @@ class NotesFragment : Fragment() {
                         val imgOutputStream = FileOutputStream(destinationFile)
                         //Comprime el bitmap en formato JPEG y escribe el stream de salida
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, imgOutputStream)
-                        //Cierra los stream
-                        imgOutputStream.close()
-                        imgInputStream?.close()
-                        internalPaths.add(fileName)
+                        imgInputStream?.use { input ->
+                            imgOutputStream.use { output -> input.copyTo(output) }
+                        }
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
-                notesVM.saveFastNote("", textNote, internalPaths)
-                Snackbar.make(binding.root, "Nota guardada exitosamente", Snackbar.LENGTH_SHORT)
-                    .show()
-                binding.edtNewNote.setText("")
-                removePhoto()
-                it.isEnabled = true
+                notesVM.saveFastNote("", textNote)
+                binding.btnAddNote.showMessage("Se ha guardado la nota exitosamente")
             }
-
         }
     }
+
+    private fun clearFastNote() { binding.edtNewNote.setText("") }
+
     private fun removeNote(note: Note) {
         val privateFolder = File(requireContext().getExternalFilesDir(null), "notes")
         note.imagesPaths.forEach { File(privateFolder, it).delete() }
         //notesVM.removeNote(note)
     }
-    private fun removePhoto() {
-        binding.btnTakePhoto.isEnabled = true
-        image = null
-        binding.ivPhoto.apply {
-            visibility = View.GONE
-            setImageURI(null)
-        }
-        binding.btnDeletePhoto.visibility = View.GONE
-    }
 
-    private fun takePhoto() {
-        val photoFile = File.createTempFile(
-            Date().time.toString(), ".jpg",
-            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        )
-        image = FileProvider.getUriForFile(
+    private fun createAttachmentChip(uri: Uri) = Chip(binding.cgAttachments.context).apply {
+        text = uri.fileName()
+        chipIcon = ContextCompat.getDrawable(requireContext(), R.drawable.baseline_image_24)
+        chipIconTint = ContextCompat.getColorStateList(
             requireContext(),
-            "${requireContext().packageName}.provider",
-            photoFile
+            R.color.md_theme_light_onPrimaryContainer
         )
-        takePicture.launch(image)
-    }
-
-    private fun checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestCameraPermission()
-        } else {
-            takePhoto()
-        }
-    }
-
-    private fun requestCameraPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(
-                requireActivity(),
-                Manifest.permission.CAMERA
-            )
-        ) {
-            Snackbar.make(
-                binding.root,
-                "Se requiere de permiso para utilizar la cámara.",
-                Snackbar.LENGTH_SHORT
-            ).show()
-        } else {
-            //El usuario nunca ha aceptado ni rechazado, así que le pedimos que acepte el permiso.
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.CAMERA),
-                CAMERA_REQUEST_CODE
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
-    ) {
-        when (requestCode) {
-            CAMERA_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty()
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                ) {
-                    takePhoto()
-                } else {
-                    Snackbar.make(
-                        binding.root,
-                        "Se requiere de permiso para utilizar la cámara.",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
-                return
-            }
-
-            else -> {}
+        isCloseIconVisible = true
+        setOnCloseIconClickListener {
+            notesVM.removeAttachment(uri)
         }
     }
 }

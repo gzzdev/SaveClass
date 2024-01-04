@@ -12,19 +12,9 @@
         app:navGraph="@navigation/main_nav"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_gravity="bottom|end"
-        style="?attr/floatingActionButtonLargeTertiaryStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/new_note"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="96dp"
-        app:srcCompat="@drawable/ic_outline_add_24"/>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
-        style="@style/Widget.Material3.BottomNavigationView"
+        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

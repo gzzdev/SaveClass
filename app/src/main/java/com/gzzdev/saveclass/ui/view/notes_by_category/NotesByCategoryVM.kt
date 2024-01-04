@@ -6,9 +6,9 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.gzzdev.saveclass.data.model.Note
 import com.gzzdev.saveclass.data.model.NoteWithCategory
-import com.gzzdev.saveclass.domain.GetNotes
-import com.gzzdev.saveclass.domain.SaveNote
-import com.gzzdev.saveclass.domain.UpdateNote
+import com.gzzdev.saveclass.domain.notes.GetNotes
+import com.gzzdev.saveclass.domain.notes.SaveNote
+import com.gzzdev.saveclass.domain.notes.UpdateNote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date

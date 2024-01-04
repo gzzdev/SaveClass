@@ -1,11 +1,13 @@
 package com.gzzdev.saveclass.ui.common
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -18,10 +20,9 @@ import com.gzzdev.saveclass.ui.view.note.ImageSliderAdapter
 import java.io.File
 
 class NotesAdapter(
-    private val onFavoriteClick: (Note) -> Unit,
-    private val onPinClick: (Note) -> Unit,
-    private val showMenuDialog: (View, Note) -> Unit
-): ListAdapter<NoteWithCategory, NotesAdapter.NoteVH>(Companion)  {
+    private val onUnpinClick: (Note) -> Unit,
+    private val showOptions: (Note) -> Unit
+) : ListAdapter<NoteWithCategory, NotesAdapter.NoteVH>(Companion) {
     companion object : DiffUtil.ItemCallback<NoteWithCategory>() {
         override fun areItemsTheSame(
             oldItem: NoteWithCategory,
@@ -43,53 +44,44 @@ class NotesAdapter(
         holder.bind(getItem(position))
     }
 
-    inner class NoteVH(private val binding: ItemNoteBinding): RecyclerView.ViewHolder(binding.root) {
+    inner class NoteVH(private val binding: ItemNoteBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        @SuppressLint("ClickableViewAccessibility")
         fun bind(noteWithCategory: NoteWithCategory) {
             val note = noteWithCategory.note
             val category = noteWithCategory.category
-            binding.tvTitle.text = note.title.ifEmpty { binding.root.context.getString(R.string.not_title) }
-            if(note.imagesPaths.isNotEmpty()){
-                binding.rvImages.visibility = View.VISIBLE
-                val imagesAdapter = ImageSliderAdapter()
-                imagesAdapter.submitList(note.imagesPaths.map { imgName ->
-                    getFileUriFromPrivateFolder(binding.root.context, imgName)
-                })
-                binding.rvImages.adapter =imagesAdapter
-            } else {
-                binding.rvImages.visibility = View.GONE
-            }
-            if (note.text.isNotEmpty()) {
-                binding.tvText.visibility = View.VISIBLE
-                binding.tvText.text = note.text
-            }
-            binding.tvDate.text = simpleDateFormat.format(note.updated)
-            binding.btnFavorite.apply {
-                icon = if(note.isFavorite)
-                    binding.root.context.getDrawable(R.drawable.ic_baseline_star_24)
-                else binding.root.context.getDrawable(R.drawable.ic_outline_star_outline_24)
-                setOnClickListener { onFavoriteClick(note) }
-            }
-
-            if (note.isPin) {
-                binding.btnPin.visibility = View.VISIBLE
-                binding.btnPin.setOnClickListener {
-                    it.visibility = View.GONE
-                    onPinClick(note)
+            val context = binding.root.context
+            binding.apply {
+                tvTitle.text = note.title.ifEmpty { context.getString(R.string.no_title) }
+                if (note.text.isNotEmpty()) {
+                    binding.tvText.visibility = View.VISIBLE
+                    binding.tvText.text = note.text
                 }
-            } else binding.btnPin.visibility = View.GONE
-            binding.root.setOnLongClickListener {
-                showMenuDialog(it, note)
-                true
+                tvDate.text = simpleDateFormat.format(note.updated)
+                if (note.imagesPaths.isNotEmpty()) {
+                    val folder = File(context.getExternalFilesDir(null), "notes")
+                    rvImages.visibility = View.VISIBLE
+                    val imagesAdapter = ImageSliderAdapter()
+                    imagesAdapter.submitList(note.imagesPaths.map { name ->
+                        getImageUri(context, name, folder)
+                    })
+                    rvImages.adapter = imagesAdapter
+                }
+                if (note.isPin) {
+                    btnPin.visibility = View.VISIBLE
+                    btnPin.setOnClickListener { onUnpinClick(note) }
+                }
+                root.setOnLongClickListener { showOptions(note); true }
             }
         }
-        private fun getFileUriFromPrivateFolder(context: Context, fileName: String, folderName: String = "notes"): Uri? {
-            val privateFolder = File(context.getExternalFilesDir(null), folderName)
-            val file = File(privateFolder, fileName)
-            return if (file.exists()) {
-                Uri.fromFile(file)
-            } else {
-                null
-            }
+
+        private fun getImageUri(
+            context: Context,
+            fileName: String,
+            folder: File
+        ): Uri {
+            val file = File(folder, "$fileName.jpg")
+            return file.toUri()
         }
     }
 }

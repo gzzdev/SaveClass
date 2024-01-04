@@ -1,32 +1,51 @@
 <resources>
+
     <string name="app_name">SaveClass</string>
     <string name="categories">Categorías</string>
     <string name="notes">Notas</string>
     <string name="favorites">Favoritos</string>
     <string name="settings">Preferencias</string>
     <string name="new_note">Crear nota</string>
+    <string name="snackbar_ok">De acuerdo</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="camera_permission_required">Se requiere permiso a la cámara para usar esta función.</string>
+
     <!-- Categories -->
-    <string name="n_notes">%1$d</string>
+    <plurals name="n_notes">
+        <item quantity="one">%d nota.</item>
+        <item quantity="other">%d notas.</item>
+    </plurals>
+    <string-array name="categories_options">
+        <item>Sin categoría (%d)</item>
+        <item>Favoritos (%d)</item>
+        <item>Bloqueados (%d)</item>
+        <item>Archivados (%d)</item>
+        <item>Papelera (%d)</item>
+    </string-array>
+
     <!-- Notes -->
-    <string name="archive">Archivar</string>
-    <string name="unarchive">Desarchivar</string>
-    <string name="pin">Anclar</string>
-    <string name="unpin">Desanclar</string>
-    <string name="remove">Borrar</string>
-    <string name="duplicate">Duplicar</string>
+    <string name="note_favorite">Añadir a favoritos</string>
+    <string name="note_remove_favorite">Quitar de favoritos</string>
+    <string name="note_archive">Archivar</string>
+    <string name="note_unarchive">Desarchivar</string>
+    <string name="note_pin">Anclar</string>
+    <string name="note_unpin">Desanclar</string>
+    <string name="note_remove">Borrar</string>
+    <string name="note_duplicate">Duplicar</string>
+    <string name="note_lock">Bloquear</string>
+    <string name="note_unlock">Desbloquear</string>
+    <string name="note_share">Compartir</string>
+    <string name="take_picture_error">Hubo un problema al guardar la foto</string>
     <!-- Note -->
-    <string name="writeNote">Escribe una nota...</string>
+    <string name="writeNote">Escribe una nota…</string>
     <string name="msg_note_saved">Nota guardada</string>
     <string name="save">Guardar</string>
     <string name="textFormat">Formato de texto</string>
     <string name="attachFile">Adjuntar archivo</string>
     <string name="noteTitle">Título</string>
-    <string name="newCategory">Nueva categoria</string>
+    <string name="new_category">Nueva categoria</string>
     <string name="note_head">%1$s\n| %2$d palabras</string>
-    <string name="not_title">Sin título</string>
+    <string name="no_title">Sin título</string>
     <string name="bin">Papelera</string>
 
     <!--Preferences-->

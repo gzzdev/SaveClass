@@ -1,21 +1,17 @@
 package com.gzzdev.saveclass.ui.view.categories
 
 import android.annotation.SuppressLint
-import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.carousel.MaskableFrameLayout
 import com.google.android.material.color.utilities.MathUtils.lerp
 import com.gzzdev.saveclass.R
 import com.gzzdev.saveclass.data.model.CategoriesTotalNotes
 import com.gzzdev.saveclass.data.model.Category
 import com.gzzdev.saveclass.databinding.ItemCategoryBinding
-import kotlin.math.floor
 
 class CategoriesAdapter(
     private val toNotes: (Category) -> Unit,
@@ -46,33 +42,29 @@ class CategoriesAdapter(
         @SuppressLint("RestrictedApi")
         fun bind(categoryWithTotal: CategoriesTotalNotes) {
             val category = categoryWithTotal.category
+            // Setting
+            binding.ivBook.drawable.setTint(category.color)
             binding.tvTitle.text = category.name
-            binding.tvNNotes.text = binding.root.context
-                .getString(R.string.n_notes, categoryWithTotal.totalNotes)
+            binding.tvNNotes.text = binding.root.context.resources
+                .getQuantityString(
+                    R.plurals.n_notes,
+                    categoryWithTotal.totalNotes,
+                    categoryWithTotal.totalNotes
+                )
+            // Listeners
             binding.root.setOnLongClickListener {
                 showMenuDialog(it, category)
                 true
             }
             binding.root.setOnClickListener { toNotes(category) }
+            // Animacion
             binding.root.setOnMaskChangedListener { maskRect ->
+                if (maskRect.width() >= 148) binding.ivBook.translationX = maskRect.left
                 binding.tvTitle.translationX = maskRect.left
-                var start: Double
-                var end: Double
-                if (maskRect.left > 0.8) {
-                    binding.tvTitle.visibility = View.INVISIBLE
-                    binding.tvNNotes.visibility = View.INVISIBLE
-                    binding.ivCategory.visibility = View.INVISIBLE
-                    start = 0.toDouble()
-                    end = 1.toDouble()
-                } else {
-                    start = 1.toDouble()
-                    end = 0.toDouble()
-                    binding.ivCategory.visibility = View.VISIBLE
-                    binding.tvTitle.visibility = View.VISIBLE
-                    binding.tvNNotes.visibility = View.VISIBLE
+                lerp(1.0, 0.0, maskRect.left/100.0).toFloat().let { opacity ->
+                    binding.tvNNotes.alpha = opacity
+                    binding.tvTitle.alpha = opacity
                 }
-                //binding.tvTitle.alpha = lerp(start, end, maskRect.left.toDouble()).toFloat()
-                binding.tvTitle.alpha = lerp(start, end, floor(maskRect.left.toDouble())).toFloat()
             }
         }
     }

@@ -13,12 +13,12 @@ class Converters {
   fun dateToTimestamp(date: Date): Long = date.time
 
   @TypeConverter
-  fun fromStringArrayList(value: ArrayList<String>): String = Gson().toJson(value)
+  fun fromStringList(value: List<String>): String = Gson().toJson(value)
 
   @TypeConverter
-  fun toStringArrayList(value: String): ArrayList<String> = try {
-    Gson().fromJson<ArrayList<String>>(value)
+  fun toStringList(value: String): List<String> = try {
+    Gson().fromJson<List<String>>(value)
   } catch (e: Exception) {
-    arrayListOf()
+    emptyList()
   }
 }

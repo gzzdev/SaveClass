@@ -1,4 +1,4 @@
-package com.gzzdev.saveclass.domain
+package com.gzzdev.saveclass.domain.notes
 
 import com.gzzdev.saveclass.data.model.NoteWithCategory
 import com.gzzdev.saveclass.data.repository.NoteRepository

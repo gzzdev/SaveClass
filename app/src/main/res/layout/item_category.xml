@@ -3,39 +3,48 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#46A5F95B"
-    android:layout_width="130dp"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="4dp"
-    android:layout_marginEnd="4dp"
+    android:layout_width="160dp"
+    android:layout_height="100dp"
+    android:layout_marginHorizontal="4dp"
+    android:elevation="1dp"
     android:foreground="?attr/selectableItemBackground"
-    app:shapeAppearance="?attr/shapeAppearanceCornerExtraLarge">
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:orientation="vertical"
-        android:padding="4dp"
+    app:shapeAppearance="?attr/shapeAppearanceCornerSmall">
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_category"
-            app:tint="@color/md_theme_light_primary"
-            app:srcCompat="@drawable/baseline_book_24"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="80dp"
-            android:layout_height="80dp"/>
-        <TextView
-            android:id="@+id/tv_title"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:maxLines="1"
-            android:maxLength="20"
-            tools:text="Mi titulo de pruebaasd"
-            android:layout_width="match_parent"
+            android:id="@+id/iv_book"
+            android:layout_marginStart="4dp"
+            tools:tint="@color/md_theme_light_tertiary"
+            app:srcCompat="@drawable/baseline_bookmark_24"
+            android:scaleType="fitStart"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="28dp"
             android:layout_height="32dp"/>
         <TextView
-            android:id="@+id/tv_n_notes"
-            android:textAlignment="center"
-            android:text="asdas"
+            android:id="@+id/tv_title"
+            android:textSize="18sp"
+            android:layout_marginHorizontal="12dp"
+            android:textColor="#424242"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:maxLength="29"
+            tools:text="Mi titulo de prueba po el eee"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tv_n_notes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        <TextView
+            android:id="@+id/tv_n_notes"
+            android:layout_marginStart="12dp"
+            android:layout_marginBottom="8dp"
+            android:textColor="#424242"
+            android:textSize="14sp"
+            tools:text="0 notas"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.carousel.MaskableFrameLayout>

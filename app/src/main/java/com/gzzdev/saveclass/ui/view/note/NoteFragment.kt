@@ -30,12 +30,11 @@ import com.gzzdev.saveclass.data.model.RoomDataSource
 import com.gzzdev.saveclass.data.repository.CategoryRepository
 import com.gzzdev.saveclass.data.repository.NoteRepository
 import com.gzzdev.saveclass.databinding.FragmentNoteBinding
-import com.gzzdev.saveclass.domain.GetCategories
-import com.gzzdev.saveclass.domain.SaveNote
+import com.gzzdev.saveclass.domain.categories.GetCategories
+import com.gzzdev.saveclass.domain.notes.SaveNote
 import com.gzzdev.saveclass.ui.common.Utils.simpleDateFormat
 import com.gzzdev.saveclass.ui.common.app
 import com.gzzdev.saveclass.ui.view.new_category_bottom_sheet.NewCategoryBottomSheet
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

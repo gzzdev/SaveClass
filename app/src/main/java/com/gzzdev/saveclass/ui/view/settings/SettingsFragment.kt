@@ -6,12 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.gzzdev.saveclass.R
 import com.gzzdev.saveclass.data.model.RoomDataSource
 import com.gzzdev.saveclass.data.repository.CategoryRepository
 import com.gzzdev.saveclass.data.repository.NoteRepository
 import com.gzzdev.saveclass.databinding.FragmentSettingsBinding
-import com.gzzdev.saveclass.domain.GetTotalCategories
-import com.gzzdev.saveclass.domain.GetTotalNotes
+import com.gzzdev.saveclass.domain.categories.GetTotalCategories
+import com.gzzdev.saveclass.domain.notes.GetTotalNotesFiltred
 import com.gzzdev.saveclass.ui.common.app
 
 class SettingsFragment: Fragment() {
@@ -32,14 +33,15 @@ class SettingsFragment: Fragment() {
         setup()
         listeners()
         observers()
-
     }
     private fun setup() {
+        binding.lyNotes.tvLb.text = getString(R.string.notes)
+        binding.lyCategories.tvLb.text = getString(R.string.categories)
         childFragmentManager.beginTransaction()
             .replace(binding.flPreferences.id, PreferencesFragment()).commit()
         val roomDataSource = RoomDataSource(requireContext().app.room)
         settingsVM = SettingsVM(
-            GetTotalNotes(NoteRepository(roomDataSource)),
+            GetTotalNotesFiltred(NoteRepository(roomDataSource)),
             GetTotalCategories(CategoryRepository(roomDataSource))
         )
     }
@@ -50,10 +52,10 @@ class SettingsFragment: Fragment() {
     }
     private fun observers() {
         settingsVM.totalNotes.observe(viewLifecycleOwner) {
-            binding.tvNotes.text = it.toString()
+            binding.lyNotes.tvCount.text = it.toString()
         }
         settingsVM.totalCategories.observe(viewLifecycleOwner) {
-            binding.tvCategories.text = it.toString()
+            binding.lyCategories.tvCount.text = it.toString()
         }
     }
 }

@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/standard_bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="24dp"
     android:orientation="vertical">
     <com.google.android.material.textfield.TextInputLayout
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
         style="?attr/textInputFilledStyle"
         android:id="@+id/edt_category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/newCategory">
+        android:hint="@string/new_category">
         <com.google.android.material.textfield.TextInputEditText
             android:maxLength="11"
             android:inputType="text"
@@ -19,11 +21,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_colors"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/item_color"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="horizontal" />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save_category"
         style="@style/Widget.Material3.Button.Icon"
         app:icon="@drawable/ic_baseline_check_24"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
         android:text="@string/save"
         android:layout_gravity="end"
         android:layout_width="wrap_content"

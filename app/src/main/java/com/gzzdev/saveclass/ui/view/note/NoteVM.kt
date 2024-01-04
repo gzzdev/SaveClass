@@ -3,8 +3,8 @@ package com.gzzdev.saveclass.ui.view.note
 import androidx.lifecycle.*
 import com.gzzdev.saveclass.data.model.Category
 import com.gzzdev.saveclass.data.model.Note
-import com.gzzdev.saveclass.domain.GetCategories
-import com.gzzdev.saveclass.domain.SaveNote
+import com.gzzdev.saveclass.domain.categories.GetCategories
+import com.gzzdev.saveclass.domain.notes.SaveNote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*

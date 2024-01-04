@@ -4,5 +4,5 @@
     <item
         android:id="@+id/category_delete"
         android:icon="@drawable/outline_delete_24"
-        android:title="@string/remove"/>
+        android:title="@string/note_remove"/>
 </menu>

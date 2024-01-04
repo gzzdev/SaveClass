@@ -16,7 +16,7 @@ data class Note(
     var text: String,
     var created: Date,
     var updated: Date,
-    var imagesPaths: ArrayList<String> = arrayListOf(),
+    var imagesPaths: List<String> = emptyList(),
     var isFavorite: Boolean = false,
     var isPin: Boolean = false,
     var isLock: Boolean = false,

@@ -1,7 +1,6 @@
 package com.gzzdev.saveclass.ui.view.notes_by_category
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,14 +8,13 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.gzzdev.saveclass.R
 import com.gzzdev.saveclass.data.model.Note
 import com.gzzdev.saveclass.data.model.RoomDataSource
 import com.gzzdev.saveclass.data.repository.NoteRepository
 import com.gzzdev.saveclass.databinding.FragmentNotesByCategoryBinding
-import com.gzzdev.saveclass.domain.GetNotes
-import com.gzzdev.saveclass.domain.SaveNote
-import com.gzzdev.saveclass.domain.UpdateNote
+import com.gzzdev.saveclass.domain.notes.GetNotes
+import com.gzzdev.saveclass.domain.notes.SaveNote
+import com.gzzdev.saveclass.domain.notes.UpdateNote
 import com.gzzdev.saveclass.ui.common.NotesAdapter
 import com.gzzdev.saveclass.ui.common.app
 
@@ -51,8 +49,7 @@ class NotesByCategoryFragment : Fragment() {
         )
         notesAdapter = NotesAdapter(
             notesByCategoryVM::onFavoriteClick,
-            notesByCategoryVM::onPinClick,
-            ::showMenuDialog
+            notesByCategoryVM::onPinClick
         )
 
         binding.rvNotes.adapter = notesAdapter
@@ -65,7 +62,7 @@ class NotesByCategoryFragment : Fragment() {
 
     private fun showMenuDialog(viewNote: View, note: Note) {
         val popupMenu = PopupMenu(requireContext(), viewNote)
-        popupMenu.inflate(R.menu.menu_pop_note)
+        /*popupMenu.inflate(R.menu.menu_pop_note)
 
         popupMenu.menu.getItem(0).setIcon(
             if(note.isPin) R.drawable.ic_baseline_push_pin_24
@@ -96,6 +93,6 @@ class NotesByCategoryFragment : Fragment() {
             Log.d("error", e.toString())
         } finally {
             popupMenu.show()
-        }
+        }*/
     }
 }
